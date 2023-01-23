@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/meschbach/appwatcher/pkg/foundation"
 )
 
 func main() {
@@ -15,5 +16,5 @@ func main() {
 			fmt.Printf("App bundle: %s (%s)\n", msg.BundleURL().FileSystemPath(), msg.BundleIdentifier().Internalize())
 		}
 	}()
-	run()
+	foundation.RunMainLoop()
 }
