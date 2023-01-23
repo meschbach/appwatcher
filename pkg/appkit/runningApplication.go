@@ -2,9 +2,7 @@ package appkit
 
 /*
 #cgo CFLAGS: -x objective-c -Wincompatible-pointer-types
-#cgo LDFLAGS: -framework Foundation -framework Appkit
-#import <Cocoa/Cocoa.h>
-#import <Foundation/Foundation.h>
+#cgo LDFLAGS: -framework Appkit
 #import <Appkit/Appkit.h>
 
 typedef NSRunningApplication* runningApplication;
