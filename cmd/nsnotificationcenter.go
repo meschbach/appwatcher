@@ -105,3 +105,13 @@ func (n *NotificationCenter) dispatch(target C.int, notice C.notification) {
 		out <- app
 	}
 }
+
+func NotificationCenterForWorkspace(w *appkit.Workspace) *NotificationCenter {
+	obj := w.NotificationCenter()
+	return &NotificationCenter{
+		object:    (*C.struct_NSNotificationCenter)(obj),
+		lock:      sync.RWMutex{},
+		consumers: make(map[C.int]chan *appkit.RunningApplication),
+		nextID:    0,
+	}
+}

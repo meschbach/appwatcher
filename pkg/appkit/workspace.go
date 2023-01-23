@@ -1,10 +1,8 @@
-package main
+package appkit
 
 /*
 #cgo CFLAGS: -x objective-c
-#cgo LDFLAGS: -framework Foundation -framework Appkit
-#import <Cocoa/Cocoa.h>
-#import <Foundation/Foundation.h>
+#cgo LDFLAGS: -framework Appkit
 #import <Appkit/Appkit.h>
 
 NSWorkspace* nsworkspace_shared() {
@@ -16,10 +14,7 @@ NSNotificationCenter* nsworkspace_notificationCenter(NSWorkspace* workspace) {
 }
 */
 import "C"
-import (
-	"github.com/meschbach/appwatcher/pkg/appkit"
-	"sync"
-)
+import "unsafe"
 
 type Workspace struct {
 	object *C.NSWorkspace
@@ -30,12 +25,7 @@ func SharedWorkspace() *Workspace {
 	return &Workspace{object: obj}
 }
 
-func (w *Workspace) NotificationCenter() *NotificationCenter {
+func (w *Workspace) NotificationCenter() unsafe.Pointer {
 	obj := C.nsworkspace_notificationCenter(w.object)
-	return &NotificationCenter{
-		object:    obj,
-		lock:      sync.RWMutex{},
-		consumers: make(map[C.int]chan *appkit.RunningApplication),
-		nextID:    0,
-	}
+	return unsafe.Pointer(obj)
 }
