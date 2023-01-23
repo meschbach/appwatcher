@@ -10,7 +10,7 @@ func main() {
 	absoluteURL := appkit.FrontmostApplication().BundleURL().FileSystemPath()
 	fmt.Printf("App URL %s\n", absoluteURL)
 
-	message, done := NotificationCenterForWorkspace(appkit.SharedWorkspace()).workspaceDidActivateApplication()
+	message, done := appkit.SharedWorkspace().NotificationCenter().WorkspaceDidActivateApplication()
 	defer done()
 	go func() {
 		for msg := range message {

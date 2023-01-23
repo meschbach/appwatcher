@@ -29,7 +29,7 @@ func SharedWorkspace() *Workspace {
 	return &Workspace{object: obj}
 }
 
-func (w *Workspace) NotificationCenter() unsafe.Pointer {
+func (w *Workspace) NotificationCenter() *NotificationCenter {
 	obj := C.nsworkspace_notificationCenter(w.object)
-	return unsafe.Pointer(obj)
+	return ImportNotificationCenter(unsafe.Pointer(obj))
 }

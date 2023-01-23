@@ -1,9 +1,8 @@
-package main
+package appkit
 
 import "C"
 import (
 	"fmt"
-	"github.com/meschbach/appwatcher/pkg/appkit"
 	"github.com/meschbach/appwatcher/pkg/bridge"
 	"runtime"
 	"sync"
@@ -22,9 +21,9 @@ typedef struct wrappedNotification {
 } notification;
 
 typedef NSNotificationCenter* notificationCenter;
-void NotificationTrampoline(int, int, notification);
+void NotificationTrampoline(uint, uint, notification);
 
-static void* trampoline(NSNotificationCenter* center, int dispatcher, int target){
+static void* trampoline(NSNotificationCenter* center, uint dispatcher, uint target){
 	return [center addObserverForName:NSWorkspaceDidActivateApplicationNotification object:nil
     		queue:nil usingBlock:^(NSNotification *note) {
 		NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
@@ -54,7 +53,7 @@ static runningApplication dictionary_valueAsRunningApplication(objcDictionary bu
 import "C"
 
 //export NotificationTrampoline
-func NotificationTrampoline(dispatcher C.int, target C.int, notice C.notification) {
+func NotificationTrampoline(dispatcher C.uint, target C.uint, notice C.notification) {
 	nc, ok := bridge.CGoDeref[NotificationCenter](bridge.Ref(dispatcher))
 	if !ok {
 		//TODO: better errors?
@@ -66,18 +65,18 @@ func NotificationTrampoline(dispatcher C.int, target C.int, notice C.notificatio
 type NotificationCenter struct {
 	object    *C.struct_NSNotificationCenter
 	lock      sync.RWMutex
-	consumers map[C.int]chan *appkit.RunningApplication
-	nextID    C.int
+	consumers map[C.uint]chan *RunningApplication
+	nextID    C.uint
 }
 
-func (n *NotificationCenter) workspaceDidActivateApplication() (chan *appkit.RunningApplication, func()) {
+func (n *NotificationCenter) WorkspaceDidActivateApplication() (chan *RunningApplication, func()) {
 	n.lock.Lock()
 	defer n.lock.Unlock()
 
 	id := n.nextID
 	n.nextID++
 
-	out := make(chan *appkit.RunningApplication)
+	out := make(chan *RunningApplication)
 	n.consumers[id] = out
 	ref := bridge.CGORef(n)
 	fmt.Printf("Registering\n")
@@ -91,28 +90,27 @@ func (n *NotificationCenter) workspaceDidActivateApplication() (chan *appkit.Run
 	}
 }
 
-func (n *NotificationCenter) dispatch(target C.int, notice C.notification) {
+func (n *NotificationCenter) dispatch(target C.uint, notice C.notification) {
 	n.lock.RLock()
 	defer n.lock.RUnlock()
 
 	if out, has := n.consumers[target]; has {
 		userInfo := C.notification_userInfo(notice)
 		running := C.dictionary_valueAsRunningApplication(userInfo)
-		finalizeNotification := func(app *appkit.RunningApplication) {
+		finalizeNotification := func(app *RunningApplication) {
 			C.trampolineCleanup(notice)
 		}
-		app := appkit.ImportRunningApplication(unsafe.Pointer(running))
+		app := ImportRunningApplication(unsafe.Pointer(running))
 		runtime.SetFinalizer(app, finalizeNotification)
 		out <- app
 	}
 }
 
-func NotificationCenterForWorkspace(w *appkit.Workspace) *NotificationCenter {
-	obj := w.NotificationCenter()
+func ImportNotificationCenter(obj unsafe.Pointer) *NotificationCenter {
 	return &NotificationCenter{
 		object:    (*C.struct_NSNotificationCenter)(obj),
 		lock:      sync.RWMutex{},
-		consumers: make(map[C.int]chan *appkit.RunningApplication),
+		consumers: make(map[C.uint]chan *RunningApplication),
 		nextID:    0,
 	}
 }
