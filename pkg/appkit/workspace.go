@@ -16,10 +16,14 @@ NSNotificationCenter* nsworkspace_notificationCenter(NSWorkspace* workspace) {
 import "C"
 import "unsafe"
 
+// Workspace wraps the NSWorkspace object.
+// See https://developer.apple.com/documentation/appkit/nsworkspace?language=objc
 type Workspace struct {
 	object *C.NSWorkspace
 }
 
+// SharedWorkspace Locates the shared desktop instance.
+// See https://developer.apple.com/documentation/appkit/nsworkspace/1530344-sharedworkspace?language=objc
 func SharedWorkspace() *Workspace {
 	obj := C.nsworkspace_shared()
 	return &Workspace{object: obj}
