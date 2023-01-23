@@ -1,11 +1,9 @@
-package main
+package foundation
 
 /*
-#cgo CFLAGS: -x objective-c -Wincompatible-pointer-types
-#cgo LDFLAGS: -framework Foundation -framework Appkit
-#import <Cocoa/Cocoa.h>
+#cgo CFLAGS: -x objective-c
+#cgo LDFLAGS: -framework Foundation
 #import <Foundation/Foundation.h>
-#import <Appkit/Appkit.h>
 
 const char* nsurl_absoluteString(NSURL* url) {
 	return [[url absoluteString] UTF8String];
@@ -16,9 +14,14 @@ const char* nsurl_fileSystemRepresentation(NSURL* url) {
 }
 */
 import "C"
+import "unsafe"
 
 type NSURL struct {
 	object *C.NSURL
+}
+
+func ImportURL(pointer unsafe.Pointer) *NSURL {
+	return &NSURL{object: (*C.NSURL)(pointer)}
 }
 
 func (n *NSURL) Absolute() string {

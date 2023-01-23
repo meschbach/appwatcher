@@ -34,8 +34,8 @@ func FrontmostApplication() *RunningApplication {
 	return &RunningApplication{C.nsworkspace_frontmostApplication()}
 }
 
-func (n *RunningApplication) BundleURL() *NSURL {
-	return &NSURL{object: C.nsrunningapplication_bundleurl(n.object)}
+func (n *RunningApplication) BundleURL() *foundation.NSURL {
+	return foundation.ImportURL(unsafe.Pointer(C.nsrunningapplication_bundleurl(n.object)))
 }
 
 func (n *RunningApplication) BundleIdentifier() *foundation.String {
