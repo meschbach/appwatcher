@@ -16,13 +16,15 @@ NSURL* nsrunningapplication_bundleurl(runningApplication app) {
 	return [app bundleURL];
 }
 
-typedef NSString* objcString;
-
-objcString nsrunningapplication_bundleIdentifier(runningApplication app) {
+NSString* nsrunningapplication_bundleIdentifier(runningApplication app) {
 	return [app bundleIdentifier];
 }
 */
 import "C"
+import (
+	"github.com/meschbach/appwatcher/pkg/foundation"
+	"unsafe"
+)
 
 type RunningApplication struct {
 	object C.runningApplication
@@ -36,8 +38,8 @@ func (n *RunningApplication) BundleURL() *NSURL {
 	return &NSURL{object: C.nsrunningapplication_bundleurl(n.object)}
 }
 
-func (n *RunningApplication) BundleIdentifier() *NSString {
+func (n *RunningApplication) BundleIdentifier() *foundation.String {
 	str := C.nsrunningapplication_bundleIdentifier(n.object)
-	internal := NSStringFromC(str)
+	internal := foundation.WrapString(unsafe.Pointer(str))
 	return internal
 }
