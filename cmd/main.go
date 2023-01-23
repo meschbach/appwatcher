@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
+	"github.com/meschbach/appwatcher/pkg/appkit"
 	"github.com/meschbach/appwatcher/pkg/foundation"
 )
 
 func main() {
-	absoluteURL := FrontmostApplication().BundleURL().FileSystemPath()
+	absoluteURL := appkit.FrontmostApplication().BundleURL().FileSystemPath()
 	fmt.Printf("App URL %s\n", absoluteURL)
 
 	message, done := SharedWorkspace().NotificationCenter().workspaceDidActivateApplication()

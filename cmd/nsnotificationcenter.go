@@ -3,8 +3,10 @@ package main
 import "C"
 import (
 	"fmt"
+	"github.com/meschbach/appwatcher/pkg/appkit"
 	"runtime"
 	"sync"
+	"unsafe"
 )
 
 /*
@@ -63,18 +65,18 @@ func NotificationTrampoline(dispatcher C.int, target C.int, notice C.notificatio
 type NotificationCenter struct {
 	object    *C.struct_NSNotificationCenter
 	lock      sync.RWMutex
-	consumers map[C.int]chan *RunningApplication
+	consumers map[C.int]chan *appkit.RunningApplication
 	nextID    C.int
 }
 
-func (n *NotificationCenter) workspaceDidActivateApplication() (chan *RunningApplication, func()) {
+func (n *NotificationCenter) workspaceDidActivateApplication() (chan *appkit.RunningApplication, func()) {
 	n.lock.Lock()
 	defer n.lock.Unlock()
 
 	id := n.nextID
 	n.nextID++
 
-	out := make(chan *RunningApplication)
+	out := make(chan *appkit.RunningApplication)
 	n.consumers[id] = out
 	ref := CGORef(n)
 	fmt.Printf("Registering\n")
@@ -95,10 +97,10 @@ func (n *NotificationCenter) dispatch(target C.int, notice C.notification) {
 	if out, has := n.consumers[target]; has {
 		userInfo := C.notification_userInfo(notice)
 		running := C.dictionary_valueAsRunningApplication(userInfo)
-		finalizeNotification := func(app *RunningApplication) {
+		finalizeNotification := func(app *appkit.RunningApplication) {
 			C.trampolineCleanup(notice)
 		}
-		app := &RunningApplication{object: running}
+		app := appkit.ImportRunningApplication(unsafe.Pointer(running))
 		runtime.SetFinalizer(app, finalizeNotification)
 		out <- app
 	}

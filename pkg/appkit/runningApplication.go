@@ -1,4 +1,4 @@
-package main
+package appkit
 
 /*
 #cgo CFLAGS: -x objective-c -Wincompatible-pointer-types
@@ -28,6 +28,10 @@ import (
 
 type RunningApplication struct {
 	object C.runningApplication
+}
+
+func ImportRunningApplication(ptr unsafe.Pointer) *RunningApplication {
+	return &RunningApplication{object: C.runningApplication(ptr)}
 }
 
 func FrontmostApplication() *RunningApplication {

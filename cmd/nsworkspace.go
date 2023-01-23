@@ -17,6 +17,7 @@ NSNotificationCenter* nsworkspace_notificationCenter(NSWorkspace* workspace) {
 */
 import "C"
 import (
+	"github.com/meschbach/appwatcher/pkg/appkit"
 	"sync"
 )
 
@@ -34,7 +35,7 @@ func (w *Workspace) NotificationCenter() *NotificationCenter {
 	return &NotificationCenter{
 		object:    obj,
 		lock:      sync.RWMutex{},
-		consumers: make(map[C.int]chan *RunningApplication),
+		consumers: make(map[C.int]chan *appkit.RunningApplication),
 		nextID:    0,
 	}
 }
