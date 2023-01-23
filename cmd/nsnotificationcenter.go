@@ -4,6 +4,7 @@ import "C"
 import (
 	"fmt"
 	"github.com/meschbach/appwatcher/pkg/appkit"
+	"github.com/meschbach/appwatcher/pkg/bridge"
 	"runtime"
 	"sync"
 	"unsafe"
@@ -54,7 +55,7 @@ import "C"
 
 //export NotificationTrampoline
 func NotificationTrampoline(dispatcher C.int, target C.int, notice C.notification) {
-	nc, ok := CGoDeref[NotificationCenter](dispatcher)
+	nc, ok := bridge.CGoDeref[NotificationCenter](bridge.Ref(dispatcher))
 	if !ok {
 		//TODO: better errors?
 		panic("Expected notification center, got none")
@@ -78,9 +79,9 @@ func (n *NotificationCenter) workspaceDidActivateApplication() (chan *appkit.Run
 
 	out := make(chan *appkit.RunningApplication)
 	n.consumers[id] = out
-	ref := CGORef(n)
+	ref := bridge.CGORef(n)
 	fmt.Printf("Registering\n")
-	C.trampoline(n.object, ref, id)
+	C.trampoline(n.object, C.uint(ref), id)
 	return out, func() {
 		n.lock.Lock()
 		defer n.lock.Unlock()
