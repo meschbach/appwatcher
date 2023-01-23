@@ -16,21 +16,21 @@ const char* nsurl_fileSystemRepresentation(NSURL* url) {
 import "C"
 import "unsafe"
 
-type NSURL struct {
+type URL struct {
 	object *C.NSURL
 }
 
-func ImportURL(pointer unsafe.Pointer) *NSURL {
-	return &NSURL{object: (*C.NSURL)(pointer)}
+func ImportURL(pointer unsafe.Pointer) *URL {
+	return &URL{object: (*C.NSURL)(pointer)}
 }
 
-func (n *NSURL) Absolute() string {
+func (n *URL) Absolute() string {
 	//return ""
 	result := C.nsurl_absoluteString(n.object)
 	return C.GoString(result)
 }
 
-func (n *NSURL) FileSystemPath() string {
+func (n *URL) FileSystemPath() string {
 	//return ""
 	result := C.nsurl_fileSystemRepresentation(n.object)
 	return C.GoString(result)
