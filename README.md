@@ -2,7 +2,7 @@
 An OSX program to journal which applications are currently at the forefront of the focus stack.
 
 ## Context
-Found focus would randomly change for a few second occasionally.  I found a Python script on a [StackOverflow post]()
+Found focus would randomly change for a few second occasionally.  I found a Python script on a StackOverflow post
 however it polled every second instead of using events.  Thought writing a similar program in Golang would be an
 interesting way to learn about `cgo` and it sure was.
 
