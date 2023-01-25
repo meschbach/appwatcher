@@ -2,20 +2,19 @@ package main
 
 import (
 	"fmt"
-	"github.com/meschbach/appwatcher/pkg/appkit"
-	"github.com/meschbach/appwatcher/pkg/foundation"
+	"github.com/spf13/cobra"
+	"os"
 )
 
 func main() {
-	absoluteURL := appkit.FrontmostApplication().BundleURL().FileSystemPath()
-	fmt.Printf("App URL %s\n", absoluteURL)
-
-	message, done := appkit.SharedWorkspace().NotificationCenter().WorkspaceDidActivateApplication()
-	defer done()
-	go func() {
-		for msg := range message {
-			fmt.Printf("App bundle: %s (%s)\n", msg.BundleURL().FileSystemPath(), msg.BundleIdentifier().Internalize())
-		}
-	}()
-	foundation.RunMainLoop()
+	root := &cobra.Command{
+		Use: "appwatcher",
+		RunE: func(cmd *cobra.Command, args []string) error {
+			return Run()
+		},
+	}
+	if err := root.Execute(); err != nil {
+		fmt.Fprintf(os.Stderr, "Whoops. There was an error while executing your CLI '%s'", err)
+		os.Exit(1)
+	}
 }
